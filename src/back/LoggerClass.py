@@ -16,6 +16,7 @@ class Logger:
         """
         Constructor.
         """
+        self._allowed_levels = ['info', 'error', 'debug', 'exception']
         self._log_core = logging.getLogger(name)
         self._log_core.setLevel(level=logging.DEBUG)
         self._logs_path = os.path.join(os.path.dirname(__file__)[:-5], 'Logs', f'{name}.log')
@@ -45,46 +46,36 @@ class Logger:
         self._file_handler.setFormatter(file_format)
         self._console_handler.setFormatter(console_format)
 
-    def send_exception_message(self, message: str) -> None:
+    def send_message(self, message: str, level: str) -> None:
         """
-        Sends exception message to file by logger.
+        Sends message to file by logger.
+        :param message: String information message
+        :param level: 'info', 'error', 'debug' , 'exception'
+        :return: None
         """
-        self._log_core.exception(message)
-
-    def send_info_message(self, message: str) -> None:
-        """
-        Sends information message to file by logger.
-        """
-        self._log_core.info(message)
-
-    def send_error_message(self, message: str) -> None:
-        """
-        Sends critical error message to file by logger.
-        """
-        self._log_core.error(message)
-
-    def send_debug_message(self, message: str) -> None:
-        """
-        Sends debug message to file by logger.
-        """
-        self._log_core.debug(message)
-
-    def get_logger_object(self):
-        """
-        Returns logger object
-        :return:
-        """
-        return self._log_core
+        if level == 'info':
+            self._log_core.info(message)
+        elif level == 'error':
+            self._log_core.error(message)
+        elif level == 'debug':
+            self._log_core.debug(message)
+        elif level == 'exception':
+            self._log_core.exception(message)
+        else:
+            print("[!]ERROR[!] Invalid output level! Please use 'info', 'error', 'debug' or"
+                  " 'exception' [!]ERROR[!].")
 
     def get_logs_path(self):
         """
-        Returns logs path
+        Returns path to this logger path file
+        :return: String path
         """
         return self._logs_path
 
-    def set_logs_path(self, path):
+    def get_allowed_levels(self) -> list:
         """
-        Sets logs path
+        Returns list of allowed levels
+        :return: List of allowed levels
         """
-        self._logs_path = path
+        return self._allowed_levels
 
