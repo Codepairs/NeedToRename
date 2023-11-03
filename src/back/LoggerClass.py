@@ -78,4 +78,3 @@ class Logger:
         :return: List of allowed levels
         """
         return self._allowed_levels
-
