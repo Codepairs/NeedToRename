@@ -2,15 +2,16 @@ class Dish:
     """
     Dish class. Contains information about dish.
     """
-    def __init__(self):
-        self.name = None
-        self.description = None
-        self.ingredients = None
-        self.recipe = None
-        self.cooking_time = None
-        self.photo_url = None
-        self.tags = None
-        self.price = None
+    def __init__(self, name=None, description=None, ingredients=None, recipe=None, sub_info=None, photo_url=None, tags=None, price=None, url=None, ):
+        self.name = name
+        self.description = description
+        self.ingredients = ingredients
+        self.recipe = recipe
+        self.sub_info = sub_info
+        self.photo_url = photo_url
+        self.tags = tags
+        self.price = price
+        self.url = url
 
     def get_name(self):
         return self.name
@@ -36,11 +37,11 @@ class Dish:
     def set_recipe(self, recipe):
         self.recipe = recipe
 
-    def get_cooking_time(self):
-        return self.cooking_time
+    def get_sub_info(self):
+        return self.sub_info
 
-    def set_cooking_time(self, cooking_time):
-        self.cooking_time = cooking_time
+    def set_sub_info(self, cooking_time):
+        self.sub_info = cooking_time
 
     def get_photo_url(self):
         return self.photo_url
@@ -60,5 +61,13 @@ class Dish:
     def set_price(self, price):
         self.price = price
 
-
-
+    def println(self):
+        print("Название: ", self.name)
+        print("Описание:", self.description)
+        print("Ингредиенты: ", self.ingredients)
+        print("Рецепт: ", self.recipe)
+        print("Дополнительная информация: ", self.sub_info)
+        print("Ссылка на фото: ", self.photo_url)
+        print("Теги: ", self.tags)
+        print("Цена: ", self.price)
+        print("Ссылка на блюдо: ", self.url)
