@@ -1,7 +1,7 @@
+from fake_useragent import UserAgent
+from urllib.parse import urljoin
 import random
 import time
-
-import bs4 as bs
 import requests
 from bs4 import BeautifulSoup
 from LoggerClass import Logger
@@ -12,24 +12,26 @@ class Parser:
     def __init__(self):
         self._logger = Logger('Parser')
         self._home_url = 'https://www.russianfood.com/'
-        self._chapter_url = self._home_url + r'/recipes/bytype/?fid='
+        self._chapter_url = urljoin(self._home_url, '/recipes/bytype/?fid=')
         self._current_parsing_dish_url = None
         self._left_dish_border = 2
         self._right_dish_border = 97
         self._not_found = 'Not Found'
-        self._parser = 'html.parser'
-        self._user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' \
-                           ' Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76'
+        self._parser = 'lxml'
+        self._user_agent = UserAgent()
         self._accept_encoding = 'gzip, deflate, br'
         self._accept_language = 'ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7'
-        self._headers = {'user-Agent': self._user_agent, 'accept-Encoding': self._accept_encoding,
-                         'accept-Language': self._accept_language}
 
     @staticmethod
     def _random_delay():
-        up = random.randint(1, 4)
-        down = random.randint(3, 8)
-        time.sleep(up / down)
+        time.sleep(random.uniform(1, 4))
+
+    def _get_headers(self):
+        return {
+            'user-Agent': self._user_agent.random,
+            'accept-Encoding': self._accept_encoding,
+            'accept-Language': self._accept_language
+        }
 
     def _get_raw_data(self, response) -> BeautifulSoup | str:
         """
@@ -38,7 +40,7 @@ class Parser:
         :return: BeautifulSoup raw data
         """
         try:
-            soup = bs.BeautifulSoup(response.text, self._parser)
+            soup = BeautifulSoup(response.text, self._parser)
             return soup.find('table', class_='recipe_new')
         except AttributeError:
             self._logger.send_message(f"Raw data not found at dish {self._current_parsing_dish_url}."
@@ -148,7 +150,8 @@ class Parser:
         :param dish_url:
         :return: Dish
         """
-        response = requests.get(dish_url, headers=self._headers)
+        session = requests.Session()
+        response = session.get(dish_url, headers=self._get_headers(), timeout=5)
         if response.ok:
             self._current_parsing_dish_url = dish_url
             raw_data = self._get_raw_data(response)
@@ -170,18 +173,19 @@ class Parser:
         :param page_url:
         :return: list of dishes at page
         """
-        response = requests.get(page_url, headers=self._headers)
+        session = requests.Session()
+        response = session.get(page_url, headers=self._get_headers(), timeout=5)
         if response.ok:
-            raw_data = bs.BeautifulSoup(response.text, self._parser)
+            raw_data = BeautifulSoup(response.text, self._parser)
             raw_dishes = raw_data.find('div', class_='recipe_list_new')
             dishes = raw_dishes.find_all('div', class_='title')
             dishes_array = []
             for i, dish_item in enumerate(dishes):
-                dish_url = self._home_url + dish_item.find('a')['href']
+                dish_url = urljoin(self._home_url, dish_item.find('a')['href'])
                 dish_item = self.parse_dish(dish_url)
                 dishes_array.append(dish_item)
-                self._logger.send_message(f'Parsed dish_item {dish_item.get_url()} number {i + 1} successfully!',
-                                          'info')
+                self._logger.send_message(f'Parsed {dish_item.get_title()} {dish_item.get_url()}'
+                                          f' number {i + 1} successfully!', 'info')
                 self._random_delay()
             return dishes_array
         else:
