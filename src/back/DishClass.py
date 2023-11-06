@@ -3,71 +3,77 @@ class Dish:
     Dish class. Contains information about dish.
     """
     def __init__(self, name=None, description=None, ingredients=None, recipe=None, sub_info=None, photo_url=None, tags=None, price=None, url=None, ):
-        self.name = name
-        self.description = description
-        self.ingredients = ingredients
-        self.recipe = recipe
-        self.sub_info = sub_info
-        self.photo_url = photo_url
-        self.tags = tags
-        self.price = price
-        self.url = url
+        self._title = name
+        self._description = description
+        self._ingredients = ingredients
+        self._recipe = recipe
+        self._sub_info = sub_info
+        self._photo_url = photo_url
+        self._tags = tags
+        self._price = price
+        self._url = url
 
-    def get_name(self):
-        return self.name
+    def get_title(self):
+        return self._title
 
-    def set_name(self, name):
-        self.name = name
+    def set_title(self, name):
+        self._title = name
 
     def get_description(self):
-        return self.description
+        return self._description
 
     def set_description(self, description):
-        self.description = description
+        self._description = description
 
     def get_ingredients(self):
-        return self.ingredients
+        return self._ingredients
 
     def set_ingredients(self, ingredients):
-        self.ingredients = ingredients
+        self._ingredients = ingredients
 
     def get_recipe(self):
-        return self.recipe
+        return self._recipe
 
     def set_recipe(self, recipe):
-        self.recipe = recipe
+        self._recipe = recipe
 
     def get_sub_info(self):
-        return self.sub_info
+        return self._sub_info
 
     def set_sub_info(self, cooking_time):
-        self.sub_info = cooking_time
+        self._sub_info = cooking_time
 
     def get_photo_url(self):
-        return self.photo_url
+        return self._photo_url
 
     def set_photo_url(self, photo_url):
-        self.photo_url = photo_url
+        self._photo_url = photo_url
 
     def get_tags(self):
-        return self.tags
+        return self._tags
 
     def set_tags(self, tags):
-        self.tags = tags
+        self._tags = tags
 
     def get_price(self):
-        return self.price
+        return self._price
 
     def set_price(self, price):
-        self.price = price
+        self._price = price
 
-    def println(self):
-        print("Название: ", self.name)
-        print("Описание:", self.description)
-        print("Ингредиенты: ", self.ingredients)
-        print("Рецепт: ", self.recipe)
-        print("Дополнительная информация: ", self.sub_info)
-        print("Ссылка на фото: ", self.photo_url)
-        print("Теги: ", self.tags)
-        print("Цена: ", self.price)
-        print("Ссылка на блюдо: ", self.url)
+    def get_url(self):
+        return self._url
+
+    def set_url(self, url):
+        self._url = url
+
+    def output(self):
+        print("Название: ", self._title)
+        print("Ссылка: ", self._url)
+        print("Фото: ", self._photo_url)
+        print("Описание:", self._description)
+        print("Ингредиенты: ", self._ingredients)
+        print("Рецепт: ", self._recipe)
+        print("Дополнительная информация: ", self._sub_info)
+        print("Теги: ", self._tags)
+        print("Цена: ", self._price)
