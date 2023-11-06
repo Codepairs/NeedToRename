@@ -4,11 +4,21 @@ import time
 import bs4 as bs
 import requests
 from LoggerClass import Logger
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from DishClass import Dish
 
 
 class Parser:
     def __init__(self):
+        self.options = Options()
+        self.service, self.chrome_options = self.setup_driver()
+        self.browser = webdriver.Chrome(service=self.service, options=self.chrome_options)
         self.logger = Logger('Parser')
         self.left_dish_border = 2
         self.home_url = 'https://www.russianfood.com/'
@@ -19,38 +29,85 @@ class Parser:
         self.accept_language = 'ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7'
         self.headers = {'user-Agent': self.user_agent, 'accept-Encoding': self.accept_encoding, 'accept-Language': self.accept_language}
 
+    def _setup_driver(self):
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_experimental_option("useAutomationExtension", False)
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        service = ChromeService(executable_path='C:\\Program Files (x86)\\chromedriver-win32')
+        return service, chrome_options
+
     def random_delay(self):
-        up = random.randint(1,4)
-        down = random.randint(3,8)
+        up = random.randint(1, 4)
+        down = random.randint(3, 8)
         time.sleep(up/down)
+
     def _shit_output(self, list):
+        """
+        Not understandable information about dish
+        """
         new_list = []
         for item in list:
             new_list.append(item.text.strip())
         return new_list
-    def parse_dish(self, dish_url):
-        response = requests.get(dish_url, headers=self.headers)
-        print(response)
-        soup = bs.BeautifulSoup(response.text, 'html.parser')
-        raw_data = soup.find('table', class_='recipe_new')
-        title_block = raw_data.find('td', class_='padding_l padding_r')
-        sub_info = title_block.find('div', class_='sub_info')
 
+    @staticmethod
+    def _get_raw_data(response):
+        soup = bs.BeautifulSoup(response.text, 'html.parser')
+        return soup.find('table', class_='recipe_new')
+
+    @staticmethod
+    def _get_recipe(raw_data) -> list:
+        steps = raw_data.find_all('div', class_='step_n')
+        recipe = []
+        for rec in steps:
+            recipe.append([rec.text.strip(), 'https://' + rec.find('a')['href']])
+        return recipe
+
+    @staticmethod
+    def _get_title(raw_data) -> str:
+        title = raw_data.find('td', class_='padding_l padding_r')
+        return title.find('h1', class_='title').text
+
+    @staticmethod
+    def _get_subinfo(raw_data) -> list:
+        sub_info = raw_data.find('div', class_='sub_info')
+        users_shit = sub_info.find_all('div', class_='el')
+        users_shits = []
+        for shit in users_shit:
+            users_shits.append(shit.text.strip())
+        return users_shits
+
+    @staticmethod
+    def _get_ingredients(raw_data) -> list:
         ingredients_block = raw_data.find('table', class_='ingr')
         ingredients = ingredients_block.find_all('td', class_='padding_l padding_r')
+        ingredients_list = []
         for item in ingredients:
-            print(item.text.strip())
-        print('=========================================================================================================')
-        users_shit = sub_info.find_all('div', class_='el')
-        description = title_block.find('p').text.strip()
-        title = title_block.find('h1', class_='title').text
-        image_url = 'https://' + title_block.find('table', class_='main_image').find('a')['href']
+            ingredients_list.append(item.text.strip())
+        return ingredients_list
 
+    @staticmethod
+    def _get_description(raw_data) -> str:
+        description = raw_data.find('p').text.strip()
+        return description
 
-        print(title, dish_url, image_url)
-        print(self._shit_output(users_shit))
-        print(description)
-        print('=========================================================================================================')
+    @staticmethod
+    def _get_image_url(raw_data) -> str:
+        return 'https://' + raw_data.find('table', class_='main_image').find('a')['href']
+
+    def parse_dish(self, dish_url):
+        response = requests.get(dish_url, headers=self.headers)
+        raw_data = self._get_raw_data(response)
+        title = self._get_title(raw_data)
+        sub_info = self._get_subinfo(raw_data)
+        ingredients = self._get_ingredients(raw_data)
+        recipe = self._get_recipe(raw_data)
+        description = self._get_description(raw_data)
+        image = self._get_image_url(raw_data)
+        dish = Dish(name=title, recipe=recipe, description=description, ingredients=ingredients, photo_url=image, url=dish_url, sub_info=sub_info)
+        dish.println()
 
     def _parse_page(self, page_url):
         response = requests.get(page_url, headers=self.headers)
