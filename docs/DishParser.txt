@@ -1,0 +1,49 @@
+Summary
+
+The Parser class is responsible for parsing information from a website that contains recipes.
+It uses the requests library to send HTTP requests and the BeautifulSoup library to parse the HTML response.
+The parsed information is then used to create instances of the Dish class, which represents a dish with various attributes such as title, description, ingredients, recipe, etc.
+
+Example Usage
+
+parser = Parser()
+dishes = parser.parse_chapters()
+for chapter in dishes:
+    for dish in chapter:
+        dish.output()
+		
+Code Analysis
+
+Main functionalities
+Parsing a single dish by its URL and creating a Dish object with the parsed information.
+Parsing all dishes from a page and returning a list of Dish objects.
+Parsing all chapters from the website and returning a nested list of Dish objects.
+ 
+Methods
+
+_random_delay(): Generates a random delay between 1 and 4 seconds to simulate human-like behavior.
+_get_headers(): Returns a dictionary of headers to be used in the HTTP requests.
+_get_raw_data(response): Extracts the raw data from the HTML response using BeautifulSoup.
+_get_recipe(raw_data): Extracts the recipe information from the raw data.
+_get_title(raw_data): Extracts the title of the dish from the raw data.
+_get_sub_info(raw_data): Extracts the additional information about the dish from the raw data.
+_get_ingredients(raw_data): Extracts the list of ingredients from the raw data.
+_get_description(raw_data): Extracts the description of the dish from the raw data.
+_get_image_url(raw_data): Extracts the URL of the dish's image from the raw data.
+parse_dish(dish_url): Parses a single dish by its URL and returns a Dish object.
+parse_page(page_url): Parses all dishes from a page and returns a list of Dish objects.
+parse_chapters(): Parses all chapters from the website and returns a nested list of Dish objects.
+ 
+Fields
+
+_logger: An instance of the Logger class used for logging messages.
+_home_url: The base URL of the website.
+_chapter_url: The URL pattern for accessing the chapters.
+_current_parsing_dish_url: The URL of the dish currently being parsed.
+_left_dish_border: The starting index of the chapters.
+_right_dish_border: The ending index of the chapters.
+_not_found: A string indicating that a certain information was not found.
+_parser: The parser to be used by BeautifulSoup.
+_user_agent: An instance of the UserAgent class used for generating random user agents.
+_accept_encoding: The value of the 'accept-Encoding' header.
+_accept_language: The value of the 'accept-Language' header.
